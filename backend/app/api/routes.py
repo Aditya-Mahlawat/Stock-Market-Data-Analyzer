@@ -18,6 +18,10 @@ def get_data(symbol: str, period: str = "1y"):
         raise HTTPException(status_code=404, detail="Data not found")
     return data
 
+@router.get("/search")
+def search_symbols(query: str):
+    return DataService.search_symbols(query)
+
 @router.post("/backtest")
 def run_backtest(symbol: str, initial_capital: float = 10000.0):
     data = DataService.fetch_history(symbol, period="2y") # Fetch enough data
