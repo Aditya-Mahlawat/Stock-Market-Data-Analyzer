@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowUp, ArrowDown, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import axios from "axios";
 
 interface WatchlistProps {
@@ -15,7 +15,6 @@ export function Watchlist({ onSelect, watchlist, onRemove }: WatchlistProps) {
 
     useEffect(() => {
         const fetchPrices = async () => {
-            // In a real app, use a batch endpoint. Here we loop (inefficient but works for demo).
             const newPrices: Record<string, number> = {};
             for (const symbol of watchlist) {
                 try {
@@ -31,13 +30,13 @@ export function Watchlist({ onSelect, watchlist, onRemove }: WatchlistProps) {
         };
 
         fetchPrices();
-        const interval = setInterval(fetchPrices, 10000); // Poll every 10s
+        const interval = setInterval(fetchPrices, 10000);
         return () => clearInterval(interval);
     }, [watchlist]);
 
     return (
-        <div className="bg-gray-900/50 backdrop-blur-md border border-gray-800 p-6 rounded-xl shadow-2xl">
-            <h3 className="text-xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+        <div className="glass-panel p-6 rounded-2xl shadow-2xl h-full">
+            <h3 className="text-xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">
                 Watchlist
             </h3>
             <div className="space-y-3">
@@ -45,10 +44,10 @@ export function Watchlist({ onSelect, watchlist, onRemove }: WatchlistProps) {
                     <div
                         key={symbol}
                         onClick={() => onSelect(symbol)}
-                        className="group flex justify-between items-center p-4 bg-gray-800/40 hover:bg-gray-800/80 border border-gray-700/50 hover:border-blue-500/50 rounded-lg cursor-pointer transition-all duration-300 transform hover:-translate-y-1"
+                        className="group flex justify-between items-center p-4 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-neon-blue/50 rounded-xl cursor-pointer transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-neon-blue/10"
                     >
                         <div>
-                            <div className="font-bold text-white">{symbol}</div>
+                            <div className="font-bold text-white group-hover:text-neon-blue transition-colors">{symbol}</div>
                             <div className="text-xs text-gray-400">NSE/BSE</div>
                         </div>
                         <div className="flex items-center gap-4">
