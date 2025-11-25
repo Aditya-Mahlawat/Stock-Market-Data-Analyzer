@@ -12,18 +12,27 @@ export default function Home() {
     const [selectedSymbol, setSelectedSymbol] = useState("AAPL");
     const [watchlist, setWatchlist] = useState<string[]>(["AAPL", "GOOGL", "RELIANCE.NS", "TCS.NS"]);
     const [chartData, setChartData] = useState([]);
+    const [period, setPeriod] = useState("1y");
+
+    const periods = [
+        { label: '1D', value: '1d' },
+        { label: '1W', value: '5d' },
+        { label: '1M', value: '1mo' },
+        { label: '1Y', value: '1y' },
+        { label: 'ALL', value: 'max' }
+    ];
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:8000/api/data/${selectedSymbol}`);
+                const response = await axios.get(`http://localhost:8000/api/data/${selectedSymbol}?period=${period}`);
                 setChartData(response.data);
             } catch (error) {
                 console.error("Failed to fetch data", error);
             }
         };
         fetchData();
-    }, [selectedSymbol]);
+    }, [selectedSymbol, period]);
 
     const addToWatchlist = (symbol: string) => {
         if (!watchlist.includes(symbol)) {
@@ -68,15 +77,22 @@ export default function Home() {
                     {/* Main Content */}
                     <div className="lg:col-span-3 space-y-8">
                         {/* Chart Section */}
-                        <div className="bg-gray-900/50 backdrop-blur-md border border-gray-800 p-6 rounded-xl shadow-2xl">
+                        <div className="glass-panel p-6 rounded-2xl shadow-2xl">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                                    {selectedSymbol} <span className="text-sm font-normal text-gray-500 bg-gray-800 px-2 py-1 rounded">1D</span>
+                                    {selectedSymbol} <span className="text-sm font-normal text-gray-400 bg-white/5 px-2 py-1 rounded border border-white/10">{periods.find(p => p.value === period)?.label}</span>
                                 </h2>
-                                <div className="flex gap-2">
-                                    {['1D', '1W', '1M', '1Y', 'ALL'].map((p) => (
-                                        <button key={p} className="px-3 py-1 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors">
-                                            {p}
+                                <div className="flex gap-2 bg-white/5 p-1 rounded-lg border border-white/5">
+                                    {periods.map((p) => (
+                                        <button
+                                            key={p.value}
+                                            onClick={() => setPeriod(p.value)}
+                                            className={`px-3 py-1 text-sm font-medium rounded-md transition-all ${period === p.value
+                                                    ? 'bg-neon-blue text-black shadow-lg shadow-neon-blue/20'
+                                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                                }`}
+                                        >
+                                            {p.label}
                                         </button>
                                     ))}
                                 </div>
