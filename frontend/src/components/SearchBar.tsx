@@ -33,34 +33,45 @@ export function SearchBar({ onSelect }: SearchBarProps) {
     }, [query]);
 
     return (
-        <div className="relative w-full">
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neon-blue h-4 w-4" />
+        <div className="relative w-full z-50">
+            <div className="relative group">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-muted group-focus-within:text-neon-blue transition-colors h-4 w-4" />
                 <input
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' && query) {
+                            onSelect(query.toUpperCase());
+                            setIsOpen(false);
+                        }
+                    }}
                     placeholder="Search stocks (e.g., RELIANCE, AAPL)..."
-                    className="w-full pl-10 pr-4 py-3 glass-input rounded-xl focus:outline-none focus:ring-2 focus:ring-neon-blue text-white placeholder-gray-400 transition-all shadow-lg shadow-neon-blue/5"
+                    className="w-full pl-10 pr-4 py-2.5 glass-input rounded-xl outline-none"
                 />
             </div>
 
             {isOpen && results.length > 0 && (
-                <div className="absolute z-50 w-full mt-2 bg-[#111928] border border-gray-700 rounded-xl shadow-xl backdrop-blur-md max-h-60 overflow-y-auto">
-                    {results.map((item) => (
-                        <div
-                            key={item.symbol}
-                            onClick={() => {
-                                onSelect(item.symbol);
-                                setQuery("");
-                                setIsOpen(false);
-                            }}
-                            className="px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors border-b border-gray-800 last:border-0"
-                        >
-                            <div className="font-medium text-white">{item.symbol}</div>
-                            <div className="text-sm text-gray-400">{item.name}</div>
-                        </div>
-                    ))}
+                <div className="absolute w-full mt-2 glass-panel overflow-hidden animate-fade-in">
+                    <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                        {results.map((item) => (
+                            <div
+                                key={item.symbol}
+                                onClick={() => {
+                                    onSelect(item.symbol);
+                                    setQuery(item.symbol);
+                                    setIsOpen(false);
+                                }}
+                                className="px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors border-b border-dark-border/50 last:border-0 flex justify-between items-center group"
+                            >
+                                <div>
+                                    <div className="font-medium text-dark-text group-hover:text-neon-blue transition-colors">{item.symbol}</div>
+                                    <div className="text-xs text-dark-muted">{item.name}</div>
+                                </div>
+                                <span className="text-xs text-dark-muted opacity-0 group-hover:opacity-100 transition-opacity">Select</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

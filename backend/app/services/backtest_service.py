@@ -34,7 +34,12 @@ class BacktestService:
         # Metrics
         total_return = df['Cumulative_Strategy_Return'].iloc[-1] - 1
         annualized_return = (1 + total_return) ** (252 / len(df)) - 1
-        sharpe_ratio = df['Strategy_Return'].mean() / df['Strategy_Return'].std() * np.sqrt(252)
+        
+        std_dev = df['Strategy_Return'].std()
+        if std_dev == 0 or np.isnan(std_dev):
+            sharpe_ratio = 0.0
+        else:
+            sharpe_ratio = df['Strategy_Return'].mean() / std_dev * np.sqrt(252)
         
         # Max Drawdown
         cumulative_returns = df['Cumulative_Strategy_Return']
@@ -42,12 +47,18 @@ class BacktestService:
         drawdown = (cumulative_returns - peak) / peak
         max_drawdown = drawdown.min()
         
+        # Handle NaN/Inf for JSON serialization
+        def clean_float(val):
+            if np.isnan(val) or np.isinf(val):
+                return 0.0
+            return float(val)
+
         return {
             "initial_capital": initial_capital,
-            "final_value": initial_capital * (1 + total_return),
-            "total_return": total_return,
-            "annualized_return": annualized_return,
-            "sharpe_ratio": sharpe_ratio,
-            "max_drawdown": max_drawdown,
-            "equity_curve": cumulative_returns.to_dict() # Date -> Value
+            "final_value": clean_float(initial_capital * (1 + total_return)),
+            "total_return": clean_float(total_return),
+            "annualized_return": clean_float(annualized_return),
+            "sharpe_ratio": clean_float(sharpe_ratio),
+            "max_drawdown": clean_float(max_drawdown),
+            "equity_curve": {k.strftime('%Y-%m-%d'): clean_float(v) for k, v in cumulative_returns.to_dict().items()} 
         }
